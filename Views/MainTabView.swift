@@ -38,7 +38,7 @@ struct MainTabView: View {
             ParentsView()
                 .tabItem {
                     Image(systemName: "dog")
-                    Text("Families")
+                    Text("Parents")
                 }
                 .tag(3)
             

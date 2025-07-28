@@ -13,7 +13,9 @@ struct ResourcesView: View {
         @Query private var resources: [Resource]
 
     var body: some View {
-        NavigationSplitView {
+        NavigationStack {
+            Text("Resources")
+                .font(.largeTitle)
             List {
                 ForEach(resources) { resource in
                     NavigationLink {
@@ -34,8 +36,6 @@ struct ResourcesView: View {
                     }
                 }
             }
-        } detail: {
-            Text("Select a Resource")
         }
     }
 

@@ -10,19 +10,15 @@ import SwiftData
 
 struct ParentsView: View {
     @Environment(\.modelContext) private var modelContext
-        @Query private var parents: [Parent]
+    @Query private var parents: [Parent]
+    @State private var showingAddParent = false
 
     var body: some View {
         NavigationSplitView {
             List {
                 ForEach(parents) { parent in
                     NavigationLink {
-                        Text("Parent: " + parent.fullName)
-                        Text("Notes: ")
-                        Text(parent.notes)
-                        if parent.dogs.isEmpty {
-                            Text("No dogs added yet...")
-                        }
+                        ParentsInfoView(parent: parent)
                     } label: {
                         Text(parent.fullName)
                     }
@@ -30,11 +26,8 @@ struct ParentsView: View {
                 .onDelete(perform: deleteParent)
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
                 ToolbarItem {
-                    Button(action: addParent) {
+                    Button(action: { showingAddParent = true }) {
                         Label("Add Parent", systemImage: "plus")
                     }
                 }
@@ -42,14 +35,12 @@ struct ParentsView: View {
         } detail: {
             Text("Select a Parent")
         }
-    }
-
-    private func addParent() {
-        withAnimation {
-            let newParent = Parent(timestamp: Date(), firstName: "Test", lastName: "Parent", notes: "Notes Section")
-            modelContext.insert(newParent)
+        .sheet(isPresented: $showingAddParent) {
+            AddParentView()
         }
     }
+
+
 
     private func deleteParent(offsets: IndexSet) {
         withAnimation {

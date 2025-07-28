@@ -11,6 +11,7 @@ import SwiftData
 @Model
 final class PottyBreak {
     var timestamp: Date
+
     
     init(timestamp: Date) {
         self.timestamp = timestamp

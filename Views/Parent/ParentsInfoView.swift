@@ -11,12 +11,20 @@ import SwiftData
 struct ParentsInfoView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var parents: [Parent]
-    @State var parent: Parent
+    @Query private var allTreats: [Treat]
+    let parent: Parent
     @State private var showingEditParent = false
     @State private var showingAddDog = false
+    @State private var showingAddTreat = false
     
     init(parent: Parent) {
         self.parent = parent
+    }
+    
+    private var parentTreats: [Treat] {
+        allTreats.filter { treat in
+            treat.parents.contains(parent)
+        }
     }
     
     var body: some View {
@@ -53,9 +61,37 @@ struct ParentsInfoView: View {
                     }
                 }
             }
+            
+            Divider()
+            
+            HStack {
+                Text("Treats")
+                    .font(.headline)
+                Spacer()
+                Text("\(parentTreats.count) package(s)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Button("Add Treat") {
+                    showingAddTreat = true
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            
+            if parentTreats.isEmpty {
+                Text("No treats assigned to this parent...")
+                    .foregroundColor(.secondary)
+                    .padding(.vertical)
+            } else {
+                LazyVStack(alignment: .leading, spacing: 8) {
+                    ForEach(parentTreats, id: \.timestamp) { treat in
+                        TreatRowView(treat: treat)
+                    }
+                }
+            }
         }
         .padding()
         .navigationTitle("Parent Details")
+        .id(parent.timestamp) // Force refresh when parent changes
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Edit") {
@@ -68,6 +104,9 @@ struct ParentsInfoView: View {
         }
         .sheet(isPresented: $showingAddDog) {
             AddDogView(parent: parent)
+        }
+        .sheet(isPresented: $showingAddTreat) {
+            AddTreatView(defaultParent: parent)
         }
     }
 }

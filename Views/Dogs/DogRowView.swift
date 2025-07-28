@@ -11,6 +11,7 @@ import SwiftData
 struct DogRowView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showingEditDog = false
+    @State private var showingDogInfo = false
     
     let dog: Dog
     let parent: Parent
@@ -49,8 +50,15 @@ struct DogRowView: View {
             }
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            showingDogInfo = true
+        }
         .sheet(isPresented: $showingEditDog) {
             AddDogView(parent: parent, dog: dog)
+        }
+        .sheet(isPresented: $showingDogInfo) {
+            DogInfoView(dog: dog, parent: parent)
         }
     }
 }

@@ -13,6 +13,7 @@ struct ParentsInfoView: View {
     @Query private var parents: [Parent]
     @State var parent: Parent
     @State private var showingEditParent = false
+    @State private var showingAddDog = false
     
     init(parent: Parent) {
         self.parent = parent
@@ -29,9 +30,28 @@ struct ParentsInfoView: View {
             Text(parent.notes)
                 .font(.body)
             
+            Divider()
+            
+            HStack {
+                Text("Dogs")
+                    .font(.headline)
+                Spacer()
+                Button("Add Dog") {
+                    showingAddDog = true
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            
             if parent.dogs.isEmpty {
                 Text("No dogs added yet...")
                     .foregroundColor(.secondary)
+                    .padding(.vertical)
+            } else {
+                LazyVStack(alignment: .leading, spacing: 8) {
+                    ForEach(parent.dogs, id: \.timestamp) { dog in
+                        DogRowView(dog: dog, parent: parent)
+                    }
+                }
             }
         }
         .padding()
@@ -45,6 +65,9 @@ struct ParentsInfoView: View {
         }
         .sheet(isPresented: $showingEditParent) {
             AddParentView(parent: parent)
+        }
+        .sheet(isPresented: $showingAddDog) {
+            AddDogView(parent: parent)
         }
     }
 }

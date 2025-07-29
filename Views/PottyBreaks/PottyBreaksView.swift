@@ -16,7 +16,8 @@ struct PottyBreaksView: View {
     
     private var allLessonDates: [Date] {
         let allDates = allTreats.flatMap { $0.lessonDates }
-        return Array(Set(allDates)).sorted() // Remove duplicates and sort
+        let normalizedDates = allDates.map { stripTimeFromDate($0) }
+        return Array(Set(normalizedDates)).sorted() // Remove duplicates and sort
     }
     
     private func stripTimeFromDate(_ date: Date) -> Date {
@@ -54,9 +55,11 @@ struct PottyBreaksView: View {
                 // Left Section - Calendar and Events
                 VStack(spacing: 0) {
                     // Calendar View
-                    DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
-                        .datePickerStyle(.graphical)
-                        .padding()
+                    CustomCalendarView(
+                        selectedDate: $selectedDate,
+                        datesWithEvents: allLessonDates
+                    )
+                    .padding()
                     
                     // Events for Selected Date
                     VStack(alignment: .leading, spacing: 12) {

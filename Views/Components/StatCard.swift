@@ -22,19 +22,21 @@ struct StatCard: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .center, spacing: 2) {
                 Text(title)
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
                 
                 if let subtitle = subtitle {
                     Text(subtitle)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(

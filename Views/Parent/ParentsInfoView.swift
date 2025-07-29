@@ -30,17 +30,25 @@ struct ParentsInfoView: View {
             VStack(alignment: .leading, spacing: 16) {
                 // Parent Information
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Parent: " + parent.fullName)
-                        .font(.title2)
-                        .fontWeight(.semibold)
+                    HStack {
+                        Spacer()
+                        Text(parent.fullName)
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                        Spacer()
+                    }
                     
-                    if !parent.notes.isEmpty {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Notes:")
-                                .font(.headline)
-                            Text(parent.notes)
-                                .font(.body)
+                    HStack {
+                        Spacer()
+                        if !parent.notes.isEmpty {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Notes:")
+                                    .font(.headline)
+                                Text(parent.notes)
+                                    .font(.body)
+                            }
                         }
+                        Spacer()
                     }
                 }
                 .padding(.bottom)
@@ -50,6 +58,8 @@ struct ParentsInfoView: View {
                 // Dogs Section
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
+                        Spacer()
+                        Spacer()
                         Text("Dogs")
                             .font(.headline)
                         Spacer()
@@ -57,19 +67,25 @@ struct ParentsInfoView: View {
                             showingAddDog = true
                         }
                         .buttonStyle(.borderedProminent)
+                        Spacer()
+                        Spacer()
                     }
-                    
-                    if parent.dogs.isEmpty {
-                        Text("No dogs added yet...")
-                            .foregroundColor(.secondary)
-                            .padding(.vertical)
-                    } else {
-                        LazyVStack(alignment: .leading, spacing: 8) {
-                            ForEach(parent.dogs, id: \.id) { dog in
-                                DogRowView(dog: dog, parent: parent)
+                    HStack {
+                        Spacer()
+                        if parent.dogs.isEmpty {
+                            Text("No dogs added yet...")
+                                .foregroundColor(.secondary)
+                                .padding(.vertical)
+                        } else {
+                            LazyVStack(alignment: .leading, spacing: 8) {
+                                ForEach(parent.dogs, id: \.id) { dog in
+                                    DogRowView(dog: dog, parent: parent)
+                                }
                             }
                         }
+                        Spacer()
                     }
+                   
                 }
                 .padding(.bottom)
                 
@@ -78,6 +94,8 @@ struct ParentsInfoView: View {
                 // Treats Section
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
+                        Spacer()
+                        Spacer()
                         Text("Treats")
                             .font(.headline)
                         Spacer()
@@ -88,26 +106,32 @@ struct ParentsInfoView: View {
                             showingAddTreat = true
                         }
                         .buttonStyle(.borderedProminent)
+                        Spacer()
+                        Spacer()
                     }
                     
-                    if parentTreats.isEmpty {
-                        Text("No treats assigned to this parent...")
-                            .foregroundColor(.secondary)
-                            .padding(.vertical)
-                    } else {
-                        LazyVStack(alignment: .leading, spacing: 8) {
-                            ForEach(parentTreats, id: \.id) { treat in
-                                TreatRowView(treat: treat)
+                    HStack {
+                        Spacer()
+                        if parentTreats.isEmpty {
+                            Text("No treats assigned to this parent...")
+                                .foregroundColor(.secondary)
+                                .padding(.vertical)
+                        } else {
+                            LazyVStack(alignment: .leading, spacing: 8) {
+                                ForEach(parentTreats, id: \.id) { treat in
+                                    TreatRowMinimalView(treat: treat)
+                                }
                             }
                         }
+                        Spacer()
                     }
+                    
                 }
                 
                 Spacer(minLength: 100)
             }
             .padding()
         }
-        .navigationTitle("Parent Details")
         .navigationBarTitleDisplayMode(.large)
         .id(parent.id) // Force refresh when parent changes
         .id(refreshTrigger) // Force refresh when refreshTrigger changes

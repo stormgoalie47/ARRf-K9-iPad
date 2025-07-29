@@ -56,7 +56,8 @@ struct TreatsView: View {
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ScrollView {
+            VStack(spacing: 0) {
+                // Fixed Filter Cards at Top
                 VStack(spacing: 20) {
                     // Filter Cards - Same Line
                     HStack(spacing: 130) {
@@ -87,11 +88,13 @@ struct TreatsView: View {
                             }
                         }
                     }
-                    
-                    // Results Count
                     .padding(.horizontal)
-                    
-                    // Treats List
+                }
+                .padding(.vertical)
+                .background(Color(.systemBackground))
+                
+                // Scrollable Treats List
+                ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(filteredTreats) { treat in
                             NavigationLink {
@@ -107,6 +110,7 @@ struct TreatsView: View {
                         }
                     }
                     .padding(.horizontal)
+                    .padding(.bottom)
                 }
             }
         }

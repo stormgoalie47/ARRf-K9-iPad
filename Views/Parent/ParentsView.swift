@@ -94,20 +94,39 @@ struct ParentsView: View {
                         NavigationLink {
                             ParentsInfoView(parent: parent)
                         } label: {
-                            VStack(alignment: .leading, spacing: 4) {
+                            HStack {
                                 Text(parent.fullName)
                                     .font(.headline)
                                 
+                                Spacer()
+                                
                                 if !parent.dogs.isEmpty {
-                                    Text("Dogs: \(parent.dogs.map { $0.name }.joined(separator: ", "))")
-                                        .font(.caption)
+                                    Text("\(parent.dogs.map { $0.name }.joined(separator: ", "))")
+                                        .font(.headline)
                                         .foregroundColor(.secondary)
                                 }
+                                
+                                Spacer()
+                                
+                                // Show active packages status
+                                let activeTreats = parent.treats.filter { !$0.completed }
+                                if !activeTreats.isEmpty {
+                                    Text("\(activeTreats.count) Active")
+                                        .font(.headline)
+                                        .foregroundColor(.green)
+                                        .fontWeight(.semibold)
+                                } else {
+                                    Text("No Active")
+                                        .font(.headline)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
                             }
                         }
                     }
                 }
-                .listStyle(PlainListStyle())
+                .listStyle(InsetGroupedListStyle())
             }
             .toolbar {
                 ToolbarItem {

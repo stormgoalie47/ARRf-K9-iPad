@@ -21,6 +21,7 @@ struct DogRowView: View {
         } label: {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
+                Spacer()
                 VStack(alignment: .leading, spacing: 2) {
                         Text(dog.name)
                         .font(.headline)
@@ -43,19 +44,13 @@ struct DogRowView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                
                 Spacer()
-                
-                Button("Edit") {
-                    showingEditDog = true
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
             }
             
                 // Show care info if available
                 if hasCareInfo() {
                     HStack {
+                        Spacer()
                         if let feeding = dog.feeding, !feeding.isEmpty {
                             Label(feeding, systemImage: "cup.and.saucer")
                                 .font(.caption)
@@ -67,15 +62,20 @@ struct DogRowView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                         }
+                        Spacer()
                     }
                     .padding(.top, 2)
             }
                 
                 if let notes = dog.notes, !notes.isEmpty {
-                    Text(notes)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 2)
+                    HStack {
+                        Spacer()
+                        Text(notes)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 2)
+                        Spacer()
+                    }
                 }
         }
         .padding(.vertical, 4)

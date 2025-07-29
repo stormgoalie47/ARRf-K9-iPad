@@ -67,7 +67,7 @@ struct LessonDateCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        ForEach(treat.parents, id: \.timestamp) { parent in
+                        ForEach(treat.parents, id: \.id) { parent in
                             NavigationLink {
                                 ParentsInfoView(parent: parent)
                             } label: {
@@ -93,7 +93,7 @@ struct LessonDateCard: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        ForEach(treat.dogs, id: \.timestamp) { dog in
+                        ForEach(treat.dogs, id: \.id) { dog in
                             NavigationLink {
                                 DogInfoView(dog: dog, parent: dog.parent ?? treat.parents.first!)
                             } label: {

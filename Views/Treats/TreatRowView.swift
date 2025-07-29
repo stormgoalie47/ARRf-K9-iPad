@@ -10,9 +10,30 @@ import SwiftData
 
 struct TreatRowView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var allParents: [Parent]
+    @Query private var allDogs: [Dog]
     @State private var showingEditTreat = false
     
     let treat: Treat
+    
+    // Helper functions to get parent and dog information from reverse relationships
+    private var displayParents: [Parent] {
+        if !treat.parents.isEmpty {
+            return treat.parents
+        } else {
+            // Find parents that have this treat in their treats array
+            return allParents.filter { $0.treats.contains(treat) }
+        }
+    }
+    
+    private var displayDogs: [Dog] {
+        if !treat.dogs.isEmpty {
+            return treat.dogs
+        } else {
+            // Find dogs that have this treat in their packages array
+            return allDogs.filter { $0.packages.contains(treat) }
+        }
+    }
     
     var body: some View {
         NavigationLink {
@@ -88,8 +109,8 @@ struct TreatRowView: View {
                     .padding(.top, 2)
             }
             
-            if !treat.dogs.isEmpty {
-                Text("Dogs: \(treat.dogs.map { $0.name }.joined(separator: ", "))")
+            if !displayDogs.isEmpty {
+                Text("Dogs: \(displayDogs.map { $0.name }.joined(separator: ", "))")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.top, 2)

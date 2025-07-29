@@ -10,6 +10,8 @@ import SwiftData
 
 struct TreatInfoView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var allParents: [Parent]
+    @Query private var allDogs: [Dog]
     @State private var showingEditTreat = false
     @State private var showingAddLessonDate = false
     @State private var newLessonDate = Date()
@@ -18,18 +20,48 @@ struct TreatInfoView: View {
     
     let treat: Treat
     
+    // Helper functions to get parent and dog information from reverse relationships
+    private var displayParents: [Parent] {
+        if !treat.parents.isEmpty {
+            return treat.parents
+        } else {
+            // Find parents that have this treat in their treats array
+            return allParents.filter { $0.treats.contains(treat) }
+        }
+    }
+    
+    private var displayDogs: [Dog] {
+        if !treat.dogs.isEmpty {
+            return treat.dogs
+        } else {
+            // Find dogs that have this treat in their packages array
+            return allDogs.filter { $0.packages.contains(treat) }
+        }
+    }
+    
     private var lessonProgress: (completed: Int, total: Int) {
-        let today = Calendar.current.startOfDay(for: Date())
-        let passedLessons = treat.lessonDates.filter { lessonDate in
-            let lessonDay = Calendar.current.startOfDay(for: lessonDate)
-            return lessonDay < today
-        }.count
-        return (passedLessons, treat.numberLessons)
+        let completed = treat.lessonDates.filter { $0 <= Date() }.count
+        return (completed, treat.numberLessons)
+    }
+    
+    private var nextLessonDate: Date? {
+        treat.lessonDates.filter { $0 > Date() }.min()
     }
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 20) {
+                // Debug output
+                let _ = print("🔍 TreatInfoView - Treat: \(treat.packageType) (ID: \(treat.id))")
+                let _ = print("   Forward parents count: \(treat.parents.count)")
+                let _ = print("   Forward parents: \(treat.parents.map { $0.fullName })")
+                let _ = print("   Forward dogs count: \(treat.dogs.count)")
+                let _ = print("   Forward dogs: \(treat.dogs.map { $0.name })")
+                let _ = print("   Display parents count: \(displayParents.count)")
+                let _ = print("   Display parents: \(displayParents.map { $0.fullName })")
+                let _ = print("   Display dogs count: \(displayDogs.count)")
+                let _ = print("   Display dogs: \(displayDogs.map { $0.name })")
+                
                 // Package Header
                 VStack(alignment: .leading, spacing: 8) {
                     Text(treat.packageType)
@@ -171,7 +203,7 @@ struct TreatInfoView: View {
                     Text("Parents")
                         .font(.headline)
                     
-                    ForEach(treat.parents, id: \.timestamp) { parent in
+                    ForEach(displayParents, id: \.id) { parent in
                         NavigationLink {
                             ParentsInfoView(parent: parent)
                         } label: {
@@ -198,7 +230,7 @@ struct TreatInfoView: View {
                     Text("Dogs")
                         .font(.headline)
                     
-                    ForEach(treat.dogs, id: \.timestamp) { dog in
+                    ForEach(displayDogs, id: \.id) { dog in
                         NavigationLink {
                             DogInfoView(dog: dog, parent: dog.parent ?? treat.parents.first!)
                         } label: {

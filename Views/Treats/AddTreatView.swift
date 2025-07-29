@@ -18,6 +18,12 @@ struct AddTreatView: View {
     private var availableDogs: [Dog] {
         // Get all dogs that belong to the selected parents
         let parentDogs = selectedParents.flatMap { $0.dogs }
+        
+        // If no dogs found from selected parents, try to get from all parents
+        if parentDogs.isEmpty {
+            return allDogs
+        }
+        
         return Array(Set(parentDogs)) // Remove duplicates
     }
     
@@ -43,8 +49,25 @@ struct AddTreatView: View {
         self.isParentLocked = defaultParent != nil
         
         if let treat = treat {
-            _selectedParents = State(initialValue: Set(treat.parents))
-            _selectedDogs = State(initialValue: Set(treat.dogs))
+            // Try to get parents and dogs from forward relationships first
+            var initialParents = Set(treat.parents)
+            var initialDogs = Set(treat.dogs)
+            
+            // If forward relationships are empty, try to get from reverse relationships
+            if initialParents.isEmpty {
+                let reverseParents = allParents.filter { $0.treats.contains(treat) }
+                initialParents = Set(reverseParents)
+                print("🔧 Using reverse relationships for parents: \(reverseParents.map { $0.fullName })")
+            }
+            
+            if initialDogs.isEmpty {
+                let reverseDogs = allDogs.filter { $0.packages.contains(treat) }
+                initialDogs = Set(reverseDogs)
+                print("🔧 Using reverse relationships for dogs: \(reverseDogs.map { $0.name })")
+            }
+            
+            _selectedParents = State(initialValue: initialParents)
+            _selectedDogs = State(initialValue: initialDogs)
             _packageType = State(initialValue: treat.packageType)
             _numberLessons = State(initialValue: treat.numberLessons)
             _price = State(initialValue: treat.price)
@@ -151,18 +174,47 @@ struct AddTreatView: View {
                             .foregroundColor(.secondary)
                             .italic()
                     } else {
-                        Picker("Select Dogs", selection: $selectedDogs) {
-                            Text("Select Dogs").tag(Set<Dog>())
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Select Dogs:")
+                                .font(.headline)
+                            
                             ForEach(availableDogs) { dog in
-                                Text("\(dog.name) (\(dog.breed))").tag(Set([dog]))
+                                HStack {
+                                    Button(action: {
+                                        if selectedDogs.contains(dog) {
+                                            selectedDogs.remove(dog)
+                                        } else {
+                                            selectedDogs.insert(dog)
+                                        }
+                                    }) {
+                                        HStack {
+                                            Image(systemName: selectedDogs.contains(dog) ? "checkmark.circle.fill" : "circle")
+                                                .foregroundColor(selectedDogs.contains(dog) ? .blue : .gray)
+                                            
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(dog.name)
+                                                    .font(.body)
+                                                    .fontWeight(.medium)
+                                                
+                                                Text(dog.breed)
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            
+                                            Spacer()
+                                        }
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                                .padding(.vertical, 4)
                             }
                         }
-                        .pickerStyle(.menu)
                         
                         if !selectedDogs.isEmpty {
                             Text("Selected: \(selectedDogs.map { $0.name }.joined(separator: ", "))")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+                                .padding(.top, 4)
                         }
                     }
                 }
@@ -215,6 +267,16 @@ struct AddTreatView: View {
         print("   Selected parents: \(selectedParents.map { $0.fullName })")
         print("   Selected dogs: \(selectedDogs.map { $0.name })")
         
+        // Check existing treats before saving
+        if let parent = selectedParents.first {
+            print("   📊 Existing treats for \(parent.fullName) before save:")
+            for treat in parent.treats {
+                print("     - \(treat.packageType) (ID: \(treat.id)): \(treat.parents.count) parents, \(treat.dogs.count) dogs")
+                print("       Parents: \(treat.parents.map { $0.fullName })")
+                print("       Dogs: \(treat.dogs.map { $0.name })")
+            }
+        }
+        
         if isEditing, let treat = treatToEdit {
             // Update existing treat
             treat.packageType = packageType.trimmingCharacters(in: .whitespaces)
@@ -245,8 +307,8 @@ struct AddTreatView: View {
         } else {
             // Create new treat
             let newTreat = Treat(
-                parents: Array(selectedParents),
-                dogs: Array(selectedDogs),
+                parents: [],  // Start with empty arrays
+                dogs: [],
                 packageType: packageType.trimmingCharacters(in: .whitespaces),
                 numberLessons: numberLessons,
                 purchaseDate: hasPurchaseDate ? purchaseDate : nil,
@@ -257,6 +319,10 @@ struct AddTreatView: View {
             
             modelContext.insert(newTreat)
             print("   🆕 Created new treat: \(newTreat.packageType) (ID: \(newTreat.id))")
+            
+            // Explicitly set both sides of the relationship
+            newTreat.parents = Array(selectedParents)
+            newTreat.dogs = Array(selectedDogs)
             
             // Update reverse relationships
             for parent in selectedParents {
@@ -273,6 +339,36 @@ struct AddTreatView: View {
         do {
             try modelContext.save()
             print("   💾 Context saved successfully")
+            
+            // Refresh existing treats to ensure their relationships are maintained
+            if let parent = selectedParents.first {
+                print("   🔄 Refreshing existing treats...")
+                for treat in parent.treats {
+                    // Re-establish the forward relationships for existing treats
+                    if treat.parents.isEmpty && !parent.treats.isEmpty {
+                        treat.parents = [parent]
+                        print("   🔧 Fixed parent relationship for \(treat.packageType)")
+                    }
+                    if treat.dogs.isEmpty && !parent.dogs.isEmpty {
+                        treat.dogs = parent.dogs
+                        print("   🔧 Fixed dog relationships for \(treat.packageType)")
+                    }
+                }
+                
+                // Save again after fixing relationships
+                try modelContext.save()
+                print("   💾 Context saved again after fixing relationships")
+            }
+            
+            // Check existing treats after saving
+            if let parent = selectedParents.first {
+                print("   📊 Existing treats for \(parent.fullName) after save:")
+                for treat in parent.treats {
+                    print("     - \(treat.packageType) (ID: \(treat.id)): \(treat.parents.count) parents, \(treat.dogs.count) dogs")
+                    print("       Parents: \(treat.parents.map { $0.fullName })")
+                    print("       Dogs: \(treat.dogs.map { $0.name })")
+                }
+            }
         } catch {
             print("   ❌ Error saving context: \(error)")
         }
@@ -283,7 +379,31 @@ struct AddTreatView: View {
     
     private func deleteTreat() {
         if let treat = treatToEdit {
+            print("🗑️ Deleting treat: \(treat.packageType) (ID: \(treat.id))")
+            
+            // Remove from all parent's treats arrays
+            for parent in treat.parents {
+                parent.treats.removeAll { $0.id == treat.id }
+                print("   🗑️ Removed from parent: \(parent.fullName)")
+            }
+            
+            // Remove from all dog's packages arrays
+            for dog in treat.dogs {
+                dog.packages.removeAll { $0.id == treat.id }
+                print("   🗑️ Removed from dog: \(dog.name)")
+            }
+            
+            // Delete the treat
             modelContext.delete(treat)
+            
+            // Save the context
+            do {
+                try modelContext.save()
+                print("   💾 Context saved after deletion")
+            } catch {
+                print("   ❌ Error saving context after deletion: \(error)")
+            }
+            
             dismiss()
         }
     }

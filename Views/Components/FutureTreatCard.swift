@@ -46,7 +46,7 @@ struct FutureTreatCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     if !treat.parents.isEmpty {
                         HStack {
-                            ForEach(treat.parents, id: \.timestamp) { parent in
+                            ForEach(treat.parents, id: \.id) { parent in
                                 NavigationLink {
                                     ParentsInfoView(parent: parent)
                                 } label: {
@@ -69,7 +69,7 @@ struct FutureTreatCard: View {
                     
                     if !treat.dogs.isEmpty {
                         HStack {
-                            ForEach(treat.dogs, id: \.timestamp) { dog in
+                            ForEach(treat.dogs, id: \.id) { dog in
                                 NavigationLink {
                                     DogInfoView(dog: dog, parent: dog.parent ?? treat.parents.first!)
                                 } label: {

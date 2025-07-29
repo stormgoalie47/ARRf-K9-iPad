@@ -21,6 +21,14 @@ struct TreatsView: View {
     private var filteredTreats: [Treat] {
         var filtered = treats
         
+        // Debug output
+        print("🔍 TreatsView - Total treats: \(treats.count)")
+        for treat in treats {
+            print("   - \(treat.packageType) (ID: \(treat.id)): \(treat.parents.count) parents, \(treat.dogs.count) dogs")
+            print("     Parents: \(treat.parents.map { $0.fullName })")
+            print("     Dogs: \(treat.dogs.map { $0.name })")
+        }
+        
         // Filter by package type
         if selectedPackageType != "All" {
             filtered = filtered.filter { $0.packageType == selectedPackageType }

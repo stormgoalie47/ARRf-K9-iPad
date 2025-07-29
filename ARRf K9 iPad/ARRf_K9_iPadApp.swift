@@ -94,6 +94,19 @@ struct ARRf_K9_iPadApp: App {
             notes: "Sample training package for demonstration"
         )
         
+        // Set up bidirectional relationships
+        sampleParent.treats.append(sampleTreat)
+        sampleDog.packages.append(sampleTreat)
+        
+        print("📊 Sample data relationships:")
+        print("   Parent: \(sampleParent.fullName) (ID: \(sampleParent.id))")
+        print("   Parent treats count: \(sampleParent.treats.count)")
+        print("   Dog: \(sampleDog.name) (ID: \(sampleDog.id))")
+        print("   Dog packages count: \(sampleDog.packages.count)")
+        print("   Treat: \(sampleTreat.packageType) (ID: \(sampleTreat.id))")
+        print("   Treat parents count: \(sampleTreat.parents.count)")
+        print("   Treat dogs count: \(sampleTreat.dogs.count)")
+        
         // Save to context
         context.insert(sampleParent)
         context.insert(sampleDog)
@@ -101,9 +114,16 @@ struct ARRf_K9_iPadApp: App {
         
         do {
             try context.save()
-            print("Sample data created successfully!")
+            print("✅ Sample data created successfully!")
+            
+            // Verify relationships after save
+            print("📊 After save verification:")
+            print("   Parent treats count: \(sampleParent.treats.count)")
+            print("   Dog packages count: \(sampleDog.packages.count)")
+            print("   Treat parents count: \(sampleTreat.parents.count)")
+            print("   Treat dogs count: \(sampleTreat.dogs.count)")
         } catch {
-            print("Failed to create sample data: \(error)")
+            print("❌ Failed to create sample data: \(error)")
         }
     }
 }

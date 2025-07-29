@@ -11,65 +11,96 @@ import SwiftData
 struct DogRowView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showingEditDog = false
-    @State private var showingDogInfo = false
     
     let dog: Dog
     let parent: Parent
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(dog.Name)
-                        .font(.headline)
-                        .fontWeight(.semibold)
+        NavigationLink {
+            DogInfoView(dog: dog, parent: parent)
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(dog.name)
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                        
+                        HStack {
+                            Text(dog.breed)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
+                            if let color = dog.color, !color.isEmpty {
+                                Text("• \(color)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        Text("DOB: \(dog.dob, format: .dateTime.day().month().year())")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                     
-                    Text(dog.Breed)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    Spacer()
                     
-                    Text("DOB: \(dog.Dob, format: .dateTime.day().month().year())")
+                    Button("Edit") {
+                        showingEditDog = true
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+                
+                // Show care info if available
+                if hasCareInfo() {
+                    HStack {
+                        if let feeding = dog.feeding, !feeding.isEmpty {
+                            Label(feeding, systemImage: "cup.and.saucer")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        if let medications = dog.medications, !medications.isEmpty {
+                            Label(medications, systemImage: "pills")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.top, 2)
+                }
+                
+                if let notes = dog.notes, !notes.isEmpty {
+                    Text(notes)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .padding(.top, 2)
                 }
-                
-                Spacer()
-                
-                Button("Edit") {
-                    showingEditDog = true
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
             }
-            
-            if !dog.notes.isEmpty {
-                Text(dog.notes)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 2)
-            }
+            .padding(.vertical, 4)
         }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            showingDogInfo = true
-        }
+        .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showingEditDog) {
             AddDogView(parent: parent, dog: dog)
         }
-        .sheet(isPresented: $showingDogInfo) {
-            DogInfoView(dog: dog, parent: parent)
-        }
+    }
+    
+    private func hasCareInfo() -> Bool {
+        return (dog.feeding != nil && !dog.feeding!.isEmpty) ||
+               (dog.medications != nil && !dog.medications!.isEmpty)
     }
 }
 
 #Preview {
     DogRowView(
         dog: Dog(
-            timestamp: Date(),
-            Name: "Buddy",
-            Breed: "Golden Retriever",
-            Dob: Date(),
+            name: "Buddy",
+            breed: "Golden Retriever",
+            dob: Date(),
+            color: "Golden",
+            feeding: "2 cups twice daily",
+            medications: "Heartgard monthly",
             notes: "Very friendly dog"
         ),
         parent: Parent(timestamp: Date(), firstName: "John", lastName: "Doe", notes: "Test parent")

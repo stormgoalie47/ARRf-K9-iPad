@@ -11,16 +11,32 @@ import SwiftData
 @Model
 final class Dog {
     var timestamp: Date
-    var Name: String
-    var Breed: String
-    var Dob: Date
-    var notes: String
-
-    init(timestamp: Date, Name: String, Breed: String, Dob: Date, notes: String) {
-        self.timestamp = timestamp
-        self.Name = Name
-        self.Breed = Breed
-        self.Dob = Dob
+    var name: String
+    var breed: String
+    var parent: Parent?
+    var dob: Date
+    var color: String?
+    var feeding: String?
+    var medications: String?
+    var trainingNotes: String?
+    var notes: String?
+    var packages: [Treat]
+    var dateAdded: Date
+    var lastUpdated: Date?
+    
+    init(name: String, breed: String, dob: Date, parent: Parent? = nil, color: String? = nil, feeding: String? = nil, medications: String? = nil, trainingNotes: String? = nil, notes: String? = nil) {
+        self.timestamp = Date()
+        self.name = name
+        self.breed = breed
+        self.parent = parent
+        self.dob = dob
+        self.color = color
+        self.feeding = feeding
+        self.medications = medications
+        self.trainingNotes = trainingNotes
         self.notes = notes
+        self.packages = []
+        self.dateAdded = Date()
+        self.lastUpdated = nil
     }
 }

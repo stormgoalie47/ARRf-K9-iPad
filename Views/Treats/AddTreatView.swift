@@ -31,6 +31,7 @@ struct AddTreatView: View {
     @State private var notes = ""
     @State private var hasPurchaseDate = false
     @State private var hasCompletionDate = false
+    @State private var showingDeleteAlert = false
     
     private let treatToEdit: Treat?
     private let isEditing: Bool
@@ -153,13 +154,13 @@ struct AddTreatView: View {
                         Picker("Select Dogs", selection: $selectedDogs) {
                             Text("Select Dogs").tag(Set<Dog>())
                             ForEach(availableDogs) { dog in
-                                Text("\(dog.Name) (\(dog.Breed))").tag(Set([dog]))
+                                Text("\(dog.name) (\(dog.breed))").tag(Set([dog]))
                             }
                         }
                         .pickerStyle(.menu)
                         
                         if !selectedDogs.isEmpty {
-                            Text("Selected: \(selectedDogs.map { $0.Name }.joined(separator: ", "))")
+                            Text("Selected: \(selectedDogs.map { $0.name }.joined(separator: ", "))")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -169,6 +170,16 @@ struct AddTreatView: View {
                 Section("Notes") {
                     TextField("Notes", text: $notes, axis: .vertical)
                         .lineLimit(3...6)
+                }
+                
+                if isEditing {
+                    Section {
+                        Button("Delete Package") {
+                            showingDeleteAlert = true
+                        }
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    }
                 }
             }
             .navigationTitle(isEditing ? "Edit Treat" : "Add Treat")
@@ -186,6 +197,14 @@ struct AddTreatView: View {
                     }
                     .disabled((!isParentLocked && selectedParents.isEmpty) || selectedDogs.isEmpty || availableDogs.isEmpty)
                 }
+            }
+            .alert("Delete Package", isPresented: $showingDeleteAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    deleteTreat()
+                }
+            } message: {
+                Text("Are you sure you want to delete this \(treatToEdit?.packageType ?? "package")? This action cannot be undone.")
             }
         }
     }
@@ -219,6 +238,13 @@ struct AddTreatView: View {
         }
         
         dismiss()
+    }
+    
+    private func deleteTreat() {
+        if let treat = treatToEdit {
+            modelContext.delete(treat)
+            dismiss()
+        }
     }
 }
 

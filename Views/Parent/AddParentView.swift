@@ -15,6 +15,7 @@ struct AddParentView: View {
     @State private var firstName = ""
     @State private var lastName = ""
     @State private var notes = ""
+    @State private var showingDeleteAlert = false
     
     private let parentToEdit: Parent?
     private let isEditing: Bool
@@ -42,6 +43,16 @@ struct AddParentView: View {
                     TextField("Notes", text: $notes, axis: .vertical)
                         .lineLimit(3...6)
                 }
+                
+                if isEditing {
+                    Section {
+                        Button("Delete Parent") {
+                            showingDeleteAlert = true
+                        }
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                }
             }
             .navigationTitle(isEditing ? "Edit Parent" : "Add Parent")
             .navigationBarTitleDisplayMode(.inline)
@@ -58,6 +69,14 @@ struct AddParentView: View {
                     }
                     .disabled(firstName.isEmpty || lastName.isEmpty)
                 }
+            }
+            .alert("Delete Parent", isPresented: $showingDeleteAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    deleteParent()
+                }
+            } message: {
+                Text("Are you sure you want to delete \(parentToEdit?.fullName ?? "this parent")? This will also delete all associated dogs and packages. This action cannot be undone.")
             }
         }
     }
@@ -80,6 +99,13 @@ struct AddParentView: View {
         }
         
         dismiss()
+    }
+    
+    private func deleteParent() {
+        if let parent = parentToEdit {
+            modelContext.delete(parent)
+            dismiss()
+        }
     }
 }
 

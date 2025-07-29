@@ -62,15 +62,55 @@ struct LessonDateCard: View {
             // Parents and Dogs
             VStack(alignment: .leading, spacing: 4) {
                 if !treat.parents.isEmpty {
-                    Text("Parents: \(treat.parents.map { $0.fullName }.joined(separator: ", "))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Text("Parents: ")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        ForEach(treat.parents, id: \.timestamp) { parent in
+                            NavigationLink {
+                                ParentsInfoView(parent: parent)
+                            } label: {
+                                Text(parent.fullName)
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                                    .underline()
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            if parent != treat.parents.last {
+                                Text(", ")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
                 
                 if !treat.dogs.isEmpty {
-                    Text("Dogs: \(treat.dogs.map { $0.Name }.joined(separator: ", "))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Text("Dogs: ")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        ForEach(treat.dogs, id: \.timestamp) { dog in
+                            NavigationLink {
+                                DogInfoView(dog: dog, parent: dog.parent ?? treat.parents.first!)
+                            } label: {
+                                Text(dog.name)
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                                    .underline()
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            if dog != treat.dogs.last {
+                                Text(", ")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
             }
         }

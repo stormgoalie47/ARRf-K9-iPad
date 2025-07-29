@@ -45,15 +45,49 @@ struct FutureTreatCard: View {
                 // Parents and Dogs
                 VStack(alignment: .leading, spacing: 4) {
                     if !treat.parents.isEmpty {
-                        Text("\(treat.parents.map { $0.fullName }.joined(separator: ", "))")
-                            .font(.headline)
-                            .fontWeight(.semibold)
+                        HStack {
+                            ForEach(treat.parents, id: \.timestamp) { parent in
+                                NavigationLink {
+                                    ParentsInfoView(parent: parent)
+                                } label: {
+                                    Text(parent.fullName)
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                
+                                if parent != treat.parents.last {
+                                    Text(", ")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                }
+                            }
+                        }
                     }
                     
                     if !treat.dogs.isEmpty {
-                        Text("\(treat.dogs.map { $0.Name }.joined(separator: ", "))")
-                            .font(.headline)
-                            .fontWeight(.semibold)
+                        HStack {
+                            ForEach(treat.dogs, id: \.timestamp) { dog in
+                                NavigationLink {
+                                    DogInfoView(dog: dog, parent: dog.parent ?? treat.parents.first!)
+                                } label: {
+                                    Text(dog.name)
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                
+                                if dog != treat.dogs.last {
+                                    Text(", ")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                }
+                            }
+                        }
                     }
                 }
                 

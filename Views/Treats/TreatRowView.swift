@@ -44,7 +44,7 @@ struct TreatRowView: View {
                     .font(.title2)
                     .foregroundColor(.blue)
                     .frame(width: 30)
-                
+                Spacer()
                 // Dog Name
                 if !displayDogs.isEmpty {
                     Text(displayDogs.map { $0.name }.joined(separator: ", "))
@@ -66,6 +66,7 @@ struct TreatRowView: View {
                         .font(.title)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                Spacer()
                 
                 // Lessons Remaining
                 Text("\(remainingLessons)/\(treat.numberLessons)")
@@ -81,6 +82,7 @@ struct TreatRowView: View {
                     .foregroundColor(.white)
                     .cornerRadius(4)
                     .frame(maxWidth: .infinity, alignment: .trailing)
+                Spacer()
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 12)

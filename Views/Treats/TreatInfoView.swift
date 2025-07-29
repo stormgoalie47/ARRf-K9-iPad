@@ -51,24 +51,20 @@ struct TreatInfoView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Package Header
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(treat.packageType)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    
+                   
                     HStack {
+                        Spacer()
+                        
+                        Text(treat.packageType)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
                         VStack(alignment: .leading, spacing: 2) {
                             Text("\(treat.numberLessons) lessons")
-                                .font(.title2)
-                                .foregroundColor(.secondary)
-                            
-                            Text("\(lessonProgress.completed)/\(lessonProgress.total) completed")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Text("\(treat.lessonDates.count)/\(lessonProgress.total) scheduled")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
                         }
                         
                         Spacer()
@@ -76,10 +72,9 @@ struct TreatInfoView: View {
                         Text(treat.price, format: .currency(code: "USD"))
                             .font(.title2)
                             .fontWeight(.semibold)
-                    }
-                    
-                    // Status Badge
-                    HStack {
+                        
+                        Spacer()
+                        
                         if treat.completed {
                             Text("Completed")
                                 .font(.caption)
@@ -100,31 +95,37 @@ struct TreatInfoView: View {
                         
                         Spacer()
                     }
-                }
-                .padding(.bottom)
                 
                 Divider()
                 
                 // Dates Section
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Timeline")
-                        .font(.headline)
+                    HStack {
+                        Spacer()
+                        Text("Timeline")
+                            .font(.headline)
+                        Spacer()
+                    }
                     
                     if let purchaseDate = treat.purchaseDate {
                         HStack {
+                            Spacer()
                             Text("Purchase Date:")
                                 .fontWeight(.medium)
                             Spacer()
                             Text(purchaseDate, format: .dateTime.day().month().year())
+                            Spacer()
                         }
                     }
                     
                     if let completionDate = treat.completionDate {
                         HStack {
+                            Spacer()
                             Text("Completion Date:")
                                 .fontWeight(.medium)
                             Spacer()
                             Text(completionDate, format: .dateTime.day().month().year())
+                            Spacer()
                         }
                     }
                     
@@ -134,22 +135,17 @@ struct TreatInfoView: View {
                             .italic()
                     }
                 }
-                .padding(.bottom)
+                    .padding()
                 
                 Divider()
                 
                 // Lesson Dates Section
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
+                        Spacer()
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Lesson Dates")
                                 .font(.headline)
-                            Text("\(lessonProgress.completed)/\(lessonProgress.total) completed")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Text("\(treat.lessonDates.count)/\(lessonProgress.total) scheduled")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
                         Spacer()
                         Button("Add Date") {
@@ -157,6 +153,7 @@ struct TreatInfoView: View {
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
+                        Spacer()
                     }
                     
                     if treat.lessonDates.isEmpty {
@@ -167,6 +164,7 @@ struct TreatInfoView: View {
                         LazyVStack(alignment: .leading, spacing: 4) {
                             ForEach(treat.lessonDates.sorted(), id: \.self) { date in
                                 HStack {
+                                    Spacer()
                                     Text(date, format: .dateTime.day().month().year())
                                         .font(.body)
                                     Spacer()
@@ -174,6 +172,7 @@ struct TreatInfoView: View {
                                         dateToRemove = date
                                         showingRemoveDateAlert = true
                                     }
+                                    Spacer()
                                     .buttonStyle(.bordered)
                                     .controlSize(.small)
                                     .foregroundColor(.red)
@@ -182,88 +181,109 @@ struct TreatInfoView: View {
                             }
                         }
                     }
-                }
-                .padding(.bottom)
-                
-                Divider()
-                
-                // Parents Section
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Parents")
-                        .font(.headline)
-                    
-                    ForEach(displayParents, id: \.id) { parent in
-                        NavigationLink {
-                            ParentsInfoView(parent: parent)
-                        } label: {
-                            HStack {
-                                Text(parent.fullName)
-                                    .font(.body)
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.vertical, 2)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+                    HStack {
+                        Spacer()
+                        Text("\(lessonProgress.completed)/\(lessonProgress.total) completed")
+                            .font(.title3)
+                        Spacer()
+                    }
+                    HStack {
+                        Spacer()
+                        Text("\(treat.lessonDates.count)/\(lessonProgress.total) scheduled")
+                            .font(.title3)
+                        Spacer()
                     }
                 }
-                .padding(.bottom)
+                .padding()
                 
                 Divider()
                 
-                // Dogs Section
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Dogs")
-                        .font(.headline)
-                    
-                    ForEach(displayDogs, id: \.id) { dog in
-                        NavigationLink {
-                            DogInfoView(dog: dog, parent: dog.parent ?? treat.parents.first!)
-                        } label: {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(dog.name)
+                HStack {
+                    // Parents Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Spacer()
+                            Text("Parents")
+                                .font(.headline)
+                            Spacer()
+                        }
+                        
+                        ForEach(displayParents, id: \.id) { parent in
+                            NavigationLink {
+                                ParentsInfoView(parent: parent)
+                            } label: {
+                                HStack {
+                                    Spacer()
+                                    Text(parent.fullName)
                                         .font(.body)
-                                        .fontWeight(.medium)
                                         .foregroundColor(.primary)
-                                    Text(dog.breed)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                    Spacer()
                                 }
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                .padding(.vertical, 2)
                             }
-                            .padding(.vertical, 2)
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
+                    .padding()
+                    
+                    Divider()
+                    
+                    // Dogs Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Spacer()
+                            Text("Dogs")
+                                .font(.headline)
+                            Spacer()
+                        }
+                        
+                        ForEach(displayDogs, id: \.id) { dog in
+                            NavigationLink {
+                                DogInfoView(dog: dog, parent: dog.parent ?? treat.parents.first!)
+                            } label: {
+                                HStack {
+                                    Spacer()
+                                    VStack(alignment: .leading) {
+                                        Text(dog.name)
+                                            .font(.body)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.primary)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(.vertical, 2)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding()
                 }
-                .padding(.bottom)
                 
                 // Notes Section
                 if let notes = treat.notes, !notes.isEmpty {
                     Divider()
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Notes")
-                            .font(.headline)
-                        
-                        Text(notes)
-                            .font(.body)
+                        HStack {
+                            Spacer()
+                            Text("Notes")
+                                .font(.headline)
+                            Spacer()
+                        }
+                        HStack {
+                            Spacer()
+                            Text(notes)
+                                .font(.body)
+                            Spacer()
+                        }
                     }
-                    .padding(.bottom)
+                    .padding()
                 }
                 
                 Spacer(minLength: 100)
             }
             .padding()
         }
-        .navigationTitle("Package Details")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

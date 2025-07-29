@@ -10,46 +10,119 @@ import SwiftData
 
 struct PottyBreaksView: View {
     @Environment(\.modelContext) private var modelContext
-        @Query private var pottybreaks: [PottyBreak]
+    @Query private var allTreats: [Treat]
+    
+    @State private var selectedDate = Date()
+    
+    private var allLessonDates: [Date] {
+        let allDates = allTreats.flatMap { $0.lessonDates }
+        return Array(Set(allDates)).sorted() // Remove duplicates and sort
+    }
+    
+    private func stripTimeFromDate(_ date: Date) -> Date {
+        return Calendar.current.startOfDay(for: date)
+    }
+    
+    private var datesWithLessons: [Date: [Treat]] {
+        var dateMap: [Date: [Treat]] = [:]
+        for treat in allTreats {
+            for lessonDate in treat.lessonDates {
+                let normalizedDate = stripTimeFromDate(lessonDate)
+                dateMap[normalizedDate, default: []].append(treat)
+            }
+        }
+        return dateMap
+    }
+    
+    private var futureTreats: [Treat] {
+        let today = Calendar.current.startOfDay(for: Date())
+        return allTreats.filter { treat in
+            treat.lessonDates.contains { lessonDate in
+                let lessonDay = Calendar.current.startOfDay(for: lessonDate)
+                return lessonDay >= today
+            }
+        }.sorted { treat1, treat2 in
+            let earliestDate1 = treat1.lessonDates.min() ?? Date.distantFuture
+            let earliestDate2 = treat2.lessonDates.min() ?? Date.distantFuture
+            return earliestDate1 < earliestDate2
+        }
+    }
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(pottybreaks) { pottybreak in
-                    NavigationLink {
-                        Text("Potty Break at \(pottybreak.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(pottybreak.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        NavigationStack {
+            HStack(spacing: 0) {
+                // Left Section - Calendar and Events
+                VStack(spacing: 0) {
+                    // Calendar View
+                    DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
+                        .datePickerStyle(.graphical)
+                        .padding()
+                    
+                    // Events for Selected Date
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Lessons on \(selectedDate, format: .dateTime.day().month().year())")
+                            .font(.headline)
+                            .padding(.horizontal)
+                        
+                        let normalizedSelectedDate = stripTimeFromDate(selectedDate)
+                        if let lessonsForDate = datesWithLessons[normalizedSelectedDate] {
+                            if lessonsForDate.isEmpty {
+                                Text("No lessons scheduled")
+                                    .foregroundColor(.secondary)
+                                    .italic()
+                                    .padding(.horizontal)
+                            } else {
+                                ScrollView {
+                                    LazyVStack(spacing: 8) {
+                                        ForEach(lessonsForDate, id: \.timestamp) { treat in
+                                            LessonDateCard(treat: treat)
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
+                        } else {
+                            Text("No lessons scheduled")
+                                .foregroundColor(.secondary)
+                                .italic()
+                                .padding(.horizontal)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemGray6))
+                
+                // Right Section - Future Events
+                VStack(spacing: 0) {
+                    if futureTreats.isEmpty {
+                        VStack {
+                            Spacer()
+                            Text("No upcoming training packages")
+                                .foregroundColor(.secondary)
+                                .italic()
+                            Spacer()
+                        }
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 12) {
+                                ForEach(futureTreats, id: \.timestamp) { treat in
+                                    FutureTreatCard(treat: treat)
+                                }
+                            }
+                            .padding()
+                        }
                     }
                 }
-                .onDelete(perform: deletePottyBreak)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemGray6))
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addPottyBreak) {
-                        Label("Add Potty Break", systemImage: "plus")
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Today") {
+                        selectedDate = Date()
                     }
                 }
-            }
-        } detail: {
-            Text("Select a Potty Break")
-        }
-    }
-
-    private func addPottyBreak() {
-        withAnimation {
-            let newPottyBreak = PottyBreak(timestamp: Date())
-            modelContext.insert(newPottyBreak)
-        }
-    }
-
-    private func deletePottyBreak(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(pottybreaks[index])
             }
         }
     }

@@ -210,6 +210,11 @@ struct AddTreatView: View {
     }
     
     private func saveTreat() {
+        // Debug output
+        print("💾 Starting saveTreat()")
+        print("   Selected parents: \(selectedParents.map { $0.fullName })")
+        print("   Selected dogs: \(selectedDogs.map { $0.name })")
+        
         if isEditing, let treat = treatToEdit {
             // Update existing treat
             treat.packageType = packageType.trimmingCharacters(in: .whitespaces)
@@ -221,6 +226,22 @@ struct AddTreatView: View {
             treat.parents = Array(selectedParents)
             treat.dogs = Array(selectedDogs)
             treat.lastUpdated = Date()
+            
+            print("   🔄 Updated existing treat: \(treat.packageType) (ID: \(treat.id))")
+            
+            // Update reverse relationships
+            for parent in selectedParents {
+                if !parent.treats.contains(treat) {
+                    parent.treats.append(treat)
+                    print("   🔗 Added treat to parent: \(parent.fullName)")
+                }
+            }
+            for dog in selectedDogs {
+                if !dog.packages.contains(treat) {
+                    dog.packages.append(treat)
+                    print("   🔗 Added treat to dog: \(dog.name)")
+                }
+            }
         } else {
             // Create new treat
             let newTreat = Treat(
@@ -235,8 +256,28 @@ struct AddTreatView: View {
             )
             
             modelContext.insert(newTreat)
+            print("   🆕 Created new treat: \(newTreat.packageType) (ID: \(newTreat.id))")
+            
+            // Update reverse relationships
+            for parent in selectedParents {
+                parent.treats.append(newTreat)
+                print("   🔗 Added treat to parent: \(parent.fullName)")
+            }
+            for dog in selectedDogs {
+                dog.packages.append(newTreat)
+                print("   🔗 Added treat to dog: \(dog.name)")
+            }
         }
         
+        // Explicitly save the context
+        do {
+            try modelContext.save()
+            print("   💾 Context saved successfully")
+        } catch {
+            print("   ❌ Error saving context: \(error)")
+        }
+        
+        print("   ✅ saveTreat() completed")
         dismiss()
     }
     

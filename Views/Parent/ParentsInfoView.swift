@@ -10,7 +10,6 @@ import SwiftData
 
 struct ParentsInfoView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var allTreats: [Treat]
     let parent: Parent
     @State private var showingEditParent = false
     @State private var showingAddDog = false
@@ -21,9 +20,11 @@ struct ParentsInfoView: View {
     }
     
     private var parentTreats: [Treat] {
-        allTreats.filter { treat in
-            treat.parents.contains(parent)
-        }
+        let treats = parent.treats.sorted { $0.timestamp > $1.timestamp }
+        print("📋 ParentsInfoView - Parent: \(parent.fullName)")
+        print("   Total treats in parent.treats: \(parent.treats.count)")
+        print("   Treats: \(treats.map { "\($0.packageType) (ID: \($0.id))" })")
+        return treats
     }
     
     var body: some View {
@@ -66,7 +67,7 @@ struct ParentsInfoView: View {
                             .padding(.vertical)
                     } else {
                         LazyVStack(alignment: .leading, spacing: 8) {
-                            ForEach(parent.dogs, id: \.timestamp) { dog in
+                            ForEach(parent.dogs, id: \.id) { dog in
                                 DogRowView(dog: dog, parent: parent)
                             }
                         }
@@ -97,7 +98,7 @@ struct ParentsInfoView: View {
                             .padding(.vertical)
                     } else {
                         LazyVStack(alignment: .leading, spacing: 8) {
-                            ForEach(parentTreats, id: \.timestamp) { treat in
+                            ForEach(parentTreats, id: \.id) { treat in
                                 TreatRowView(treat: treat)
                             }
                         }
@@ -110,7 +111,7 @@ struct ParentsInfoView: View {
         }
         .navigationTitle("Parent Details")
         .navigationBarTitleDisplayMode(.large)
-        .id(parent.timestamp) // Force refresh when parent changes
+        .id(parent.id) // Force refresh when parent changes
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Edit") {

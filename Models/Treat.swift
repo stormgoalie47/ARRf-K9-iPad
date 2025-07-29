@@ -10,6 +10,7 @@ import SwiftData
 
 @Model
 final class Treat {
+    var id: UUID
     var timestamp: Date
     var lastUpdated: Date?
     var parents: [Parent]
@@ -23,7 +24,8 @@ final class Treat {
     var completed: Bool
     var notes: String?
     
-    init(lastUpdated: Date? = nil, parents: [Parent], dogs: [Dog], packageType: String, numberLessons: Int, purchaseDate: Date? = nil, completionDate: Date? = nil, lessonDates: [Date] = [], price: Double, notes: String? = nil) {
+    init(id: UUID = UUID(), lastUpdated: Date? = nil, parents: [Parent], dogs: [Dog], packageType: String, numberLessons: Int, purchaseDate: Date? = nil, completionDate: Date? = nil, lessonDates: [Date] = [], price: Double, notes: String? = nil) {
+        self.id = id
         self.timestamp = Date()
         self.lastUpdated = Date()
         self.parents = parents

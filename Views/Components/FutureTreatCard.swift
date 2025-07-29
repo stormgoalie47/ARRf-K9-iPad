@@ -59,8 +59,8 @@ struct FutureTreatCard: View {
                                 
                                 if parent != treat.parents.last {
                                     Text(", ")
-                                        .font(.headline)
-                                        .fontWeight(.semibold)
+                            .font(.headline)
+                            .fontWeight(.semibold)
                                         .foregroundColor(.primary)
                                 }
                             }
@@ -82,8 +82,8 @@ struct FutureTreatCard: View {
                                 
                                 if dog != treat.dogs.last {
                                     Text(", ")
-                                        .font(.headline)
-                                        .fontWeight(.semibold)
+                            .font(.headline)
+                            .fontWeight(.semibold)
                                         .foregroundColor(.primary)
                                 }
                             }

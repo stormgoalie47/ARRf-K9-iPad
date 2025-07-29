@@ -10,16 +10,17 @@ import SwiftData
 
 struct DogInfoView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var allTreats: [Treat]
     @State private var showingEditDog = false
     
     let dog: Dog
     let parent: Parent
     
     private var dogTreats: [Treat] {
-        allTreats.filter { treat in
-            treat.dogs.contains(dog)
-        }
+        let packages = dog.packages.sorted { $0.timestamp > $1.timestamp }
+        print("🐕 DogInfoView - Dog: \(dog.name)")
+        print("   Total packages in dog.packages: \(dog.packages.count)")
+        print("   Packages: \(packages.map { "\($0.packageType) (ID: \($0.id))" })")
+        return packages
     }
     
     var body: some View {
@@ -111,7 +112,7 @@ struct DogInfoView: View {
                             .italic()
                     } else {
                         LazyVStack(alignment: .leading, spacing: 8) {
-                            ForEach(dogTreats, id: \.timestamp) { treat in
+                            ForEach(dogTreats, id: \.id) { treat in
                                 TreatRowView(treat: treat)
                             }
                         }

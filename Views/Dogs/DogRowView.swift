@@ -19,19 +19,19 @@ struct DogRowView: View {
         NavigationLink {
             DogInfoView(dog: dog, parent: parent)
         } label: {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
                         Text(dog.name)
-                            .font(.headline)
-                            .fontWeight(.semibold)
+                        .font(.headline)
+                        .fontWeight(.semibold)
                             .foregroundColor(.primary)
-                        
+                    
                         HStack {
                             Text(dog.breed)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
                             if let color = dog.color, !color.isEmpty {
                                 Text("• \(color)")
                                     .font(.subheadline)
@@ -40,19 +40,19 @@ struct DogRowView: View {
                         }
                         
                         Text("DOB: \(dog.dob, format: .dateTime.day().month().year())")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    Spacer()
-                    
-                    Button("Edit") {
-                        showingEditDog = true
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
                 
+                Spacer()
+                
+                Button("Edit") {
+                    showingEditDog = true
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+            
                 // Show care info if available
                 if hasCareInfo() {
                     HStack {
@@ -64,12 +64,12 @@ struct DogRowView: View {
                         
                         if let medications = dog.medications, !medications.isEmpty {
                             Label(medications, systemImage: "pills")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                         }
                     }
                     .padding(.top, 2)
-                }
+            }
                 
                 if let notes = dog.notes, !notes.isEmpty {
                     Text(notes)
@@ -77,14 +77,14 @@ struct DogRowView: View {
                         .foregroundColor(.secondary)
                         .padding(.top, 2)
                 }
-            }
-            .padding(.vertical, 4)
+        }
+        .padding(.vertical, 4)
         }
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showingEditDog) {
             AddDogView(parent: parent, dog: dog)
         }
-    }
+        }
     
     private func hasCareInfo() -> Bool {
         return (dog.feeding != nil && !dog.feeding!.isEmpty) ||

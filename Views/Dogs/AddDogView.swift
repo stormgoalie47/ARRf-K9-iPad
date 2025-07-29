@@ -130,6 +130,12 @@ struct AddDogView: View {
                 notes: notes.trimmingCharacters(in: .whitespaces).isEmpty ? nil : notes.trimmingCharacters(in: .whitespaces)
             )
             
+            // Ensure parent is in the model context
+            modelContext.insert(parent)
+            
+            // Insert the dog into the model context
+            modelContext.insert(newDog)
+            
             // Add dog to parent
             parent.dogs.append(newDog)
         }

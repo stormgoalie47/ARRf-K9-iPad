@@ -18,84 +18,84 @@ struct TreatRowView: View {
         NavigationLink {
             TreatInfoView(treat: treat)
         } label: {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(treat.packageType)
-                            .font(.headline)
-                            .fontWeight(.semibold)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(treat.packageType)
+                        .font(.headline)
+                        .fontWeight(.semibold)
                             .foregroundColor(.primary)
+                    
+                    HStack {
+                        Text("\(treat.numberLessons) lessons")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                         
-                        HStack {
-                            Text("\(treat.numberLessons) lessons")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
-                            Text("•")
-                                .foregroundColor(.secondary)
-                            
-                            Text(treat.price, format: .currency(code: "USD"))
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
+                        Text("•")
+                            .foregroundColor(.secondary)
                         
-                        if let startDate = treat.purchaseDate {
-                            Text("Started: \(startDate, format: .dateTime.day().month().year())")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        if let endDate = treat.completionDate {
-                            Text("Ended: \(endDate, format: .dateTime.day().month().year())")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
+                        Text(treat.price, format: .currency(code: "USD"))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     }
                     
-                    Spacer()
+                    if let startDate = treat.purchaseDate {
+                        Text("Started: \(startDate, format: .dateTime.day().month().year())")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                     
-                    VStack(alignment: .trailing, spacing: 2) {
-                        if treat.completed {
-                            Text("Completed")
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(Color.green)
-                                .foregroundColor(.white)
-                                .cornerRadius(4)
-                        } else {
-                            Text("Active")
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(4)
-                        }
-                        
-                        Button("Edit") {
-                            showingEditTreat = true
-                        }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
+                    if let endDate = treat.completionDate {
+                        Text("Ended: \(endDate, format: .dateTime.day().month().year())")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
                 
-                if let notes = treat.notes, !notes.isEmpty {
-                    Text(notes)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 2)
-                }
+                Spacer()
                 
-                if !treat.dogs.isEmpty {
-                    Text("Dogs: \(treat.dogs.map { $0.name }.joined(separator: ", "))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 2)
+                VStack(alignment: .trailing, spacing: 2) {
+                    if treat.completed {
+                        Text("Completed")
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(4)
+                    } else {
+                        Text("Active")
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(4)
+                    }
+                    
+                    Button("Edit") {
+                        showingEditTreat = true
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
                 }
             }
-            .padding(.vertical, 4)
+            
+            if let notes = treat.notes, !notes.isEmpty {
+                Text(notes)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 2)
+            }
+            
+            if !treat.dogs.isEmpty {
+                Text("Dogs: \(treat.dogs.map { $0.name }.joined(separator: ", "))")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 2)
+            }
+        }
+        .padding(.vertical, 4)
         }
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showingEditTreat) {

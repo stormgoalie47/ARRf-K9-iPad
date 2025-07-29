@@ -80,8 +80,8 @@ struct LessonDateCard: View {
                             
                             if parent != treat.parents.last {
                                 Text(", ")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                             }
                         }
                     }
@@ -106,8 +106,8 @@ struct LessonDateCard: View {
                             
                             if dog != treat.dogs.last {
                                 Text(", ")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                             }
                         }
                     }

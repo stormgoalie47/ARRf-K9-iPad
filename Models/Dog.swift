@@ -10,6 +10,7 @@ import SwiftData
 
 @Model
 final class Dog {
+    var id: UUID
     var timestamp: Date
     var name: String
     var breed: String
@@ -24,7 +25,8 @@ final class Dog {
     var dateAdded: Date
     var lastUpdated: Date?
     
-    init(name: String, breed: String, dob: Date, parent: Parent? = nil, color: String? = nil, feeding: String? = nil, medications: String? = nil, trainingNotes: String? = nil, notes: String? = nil) {
+    init(id: UUID = UUID(), name: String, breed: String, dob: Date, parent: Parent? = nil, color: String? = nil, feeding: String? = nil, medications: String? = nil, trainingNotes: String? = nil, notes: String? = nil) {
+        self.id = id
         self.timestamp = Date()
         self.name = name
         self.breed = breed

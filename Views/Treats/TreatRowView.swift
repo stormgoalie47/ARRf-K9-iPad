@@ -36,13 +36,13 @@ struct TreatRowView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    if let startDate = treat.dateStarted {
+                    if let startDate = treat.purchaseDate {
                         Text("Started: \(startDate, format: .dateTime.day().month().year())")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     
-                    if let endDate = treat.dateEnded {
+                    if let endDate = treat.completionDate {
                         Text("Ended: \(endDate, format: .dateTime.day().month().year())")
                             .font(.caption)
                             .foregroundColor(.secondary)

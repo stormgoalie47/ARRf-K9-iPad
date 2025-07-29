@@ -25,12 +25,12 @@ struct AddTreatView: View {
     @State private var selectedDogs: Set<Dog> = []
     @State private var packageType = "Boarding"
     @State private var numberLessons = 10
-    @State private var dateStarted: Date = Date()
-    @State private var dateEnded: Date = Date()
+    @State private var purchaseDate: Date = Date()
+    @State private var completionDate: Date = Date()
     @State private var price = 0.0
     @State private var notes = ""
-    @State private var hasStartDate = false
-    @State private var hasEndDate = false
+    @State private var hasPurchaseDate = false
+    @State private var hasCompletionDate = false
     
     private let treatToEdit: Treat?
     private let isEditing: Bool
@@ -49,14 +49,15 @@ struct AddTreatView: View {
             _price = State(initialValue: treat.price)
             _notes = State(initialValue: treat.notes ?? "")
             
-            if let startDate = treat.dateStarted {
-                _dateStarted = State(initialValue: startDate)
-                _hasStartDate = State(initialValue: true)
+            if let purchaseDate = treat.purchaseDate {
+                _purchaseDate = State(initialValue: purchaseDate)
+                _hasPurchaseDate = State(initialValue: true)
             }
-            if let endDate = treat.dateEnded {
-                _dateEnded = State(initialValue: endDate)
-                _hasEndDate = State(initialValue: true)
+            if let completionDate = treat.completionDate {
+                _completionDate = State(initialValue: completionDate)
+                _hasCompletionDate = State(initialValue: true)
             }
+            // Note: lessonDates are managed in TreatInfoView, not in AddTreatView
         } else if let defaultParent = defaultParent {
             // Set default parent when creating new treat
             _selectedParents = State(initialValue: [defaultParent])
@@ -96,14 +97,14 @@ struct AddTreatView: View {
                 }
                 
                 Section("Dates") {
-                    DatePicker("Start Date", selection: $dateStarted, displayedComponents: .date)
-                        .onChange(of: dateStarted) { _, newValue in
-                            hasStartDate = true
+                    DatePicker("Purchase Date", selection: $purchaseDate, displayedComponents: .date)
+                        .onChange(of: purchaseDate) { _, newValue in
+                            hasPurchaseDate = true
                         }
                     
-                    DatePicker("End Date", selection: $dateEnded, displayedComponents: .date)
-                        .onChange(of: dateEnded) { _, newValue in
-                            hasEndDate = true
+                    DatePicker("Completion Date", selection: $completionDate, displayedComponents: .date)
+                        .onChange(of: completionDate) { _, newValue in
+                            hasCompletionDate = true
                         }
                 }
                 
@@ -196,8 +197,8 @@ struct AddTreatView: View {
             treat.numberLessons = numberLessons
             treat.price = price
             treat.notes = notes.trimmingCharacters(in: .whitespaces).isEmpty ? nil : notes.trimmingCharacters(in: .whitespaces)
-            treat.dateStarted = hasStartDate ? dateStarted : nil
-            treat.dateEnded = hasEndDate ? dateEnded : nil
+            treat.purchaseDate = hasPurchaseDate ? purchaseDate : nil
+            treat.completionDate = hasCompletionDate ? completionDate : nil
             treat.parents = Array(selectedParents)
             treat.dogs = Array(selectedDogs)
             treat.lastUpdated = Date()
@@ -208,8 +209,8 @@ struct AddTreatView: View {
                 dogs: Array(selectedDogs),
                 packageType: packageType.trimmingCharacters(in: .whitespaces),
                 numberLessons: numberLessons,
-                dateStarted: hasStartDate ? dateStarted : nil,
-                dateEnded: hasEndDate ? dateEnded : nil,
+                purchaseDate: hasPurchaseDate ? purchaseDate : nil,
+                completionDate: hasCompletionDate ? completionDate : nil,
                 price: price,
                 notes: notes.trimmingCharacters(in: .whitespaces).isEmpty ? nil : notes.trimmingCharacters(in: .whitespaces)
             )

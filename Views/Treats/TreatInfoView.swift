@@ -10,9 +10,21 @@ import SwiftData
 
 struct TreatInfoView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var showingEditTreat = false
+    @State private var showingAddLessonDate = false
+    @State private var newLessonDate = Date()
     
     let treat: Treat
+    
+    private var lessonProgress: (completed: Int, total: Int) {
+        let today = Calendar.current.startOfDay(for: Date())
+        let passedLessons = treat.lessonDates.filter { lessonDate in
+            let lessonDay = Calendar.current.startOfDay(for: lessonDate)
+            return lessonDay < today
+        }.count
+        return (passedLessons, treat.numberLessons)
+    }
     
     var body: some View {
         NavigationView {
@@ -25,9 +37,18 @@ struct TreatInfoView: View {
                             .fontWeight(.bold)
                         
                         HStack {
-                            Text("\(treat.numberLessons) lessons")
-                                .font(.title2)
-                                .foregroundColor(.secondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("\(treat.numberLessons) lessons")
+                                    .font(.title2)
+                                    .foregroundColor(.secondary)
+                                
+                                Text("\(lessonProgress.completed)/\(lessonProgress.total) completed")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Text("\(treat.lessonDates.count)/\(lessonProgress.total) scheduled")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
                             
                             Spacer()
                             
@@ -68,28 +89,76 @@ struct TreatInfoView: View {
                         Text("Timeline")
                             .font(.headline)
                         
-                        if let startDate = treat.dateStarted {
+                        if let purchaseDate = treat.purchaseDate {
                             HStack {
-                                Text("Start Date:")
+                                Text("Purchase Date:")
                                     .fontWeight(.medium)
                                 Spacer()
-                                Text(startDate, format: .dateTime.day().month().year())
+                                Text(purchaseDate, format: .dateTime.day().month().year())
                             }
                         }
                         
-                        if let endDate = treat.dateEnded {
+                        if let completionDate = treat.completionDate {
                             HStack {
-                                Text("End Date:")
+                                Text("Completion Date:")
                                     .fontWeight(.medium)
                                 Spacer()
-                                Text(endDate, format: .dateTime.day().month().year())
+                                Text(completionDate, format: .dateTime.day().month().year())
                             }
                         }
                         
-                        if treat.dateStarted == nil && treat.dateEnded == nil {
+                        if treat.purchaseDate == nil && treat.completionDate == nil {
                             Text("No dates set")
                                 .foregroundColor(.secondary)
                                 .italic()
+                        }
+                    }
+                    .padding(.bottom)
+                    
+                    Divider()
+                    
+                    // Lesson Dates Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Lesson Dates")
+                                    .font(.headline)
+                                Text("\(lessonProgress.completed)/\(lessonProgress.total) completed")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Text("\(treat.lessonDates.count)/\(lessonProgress.total) scheduled")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Button("Add Date") {
+                                showingAddLessonDate = true
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        }
+                        
+                        if treat.lessonDates.isEmpty {
+                            Text("No lesson dates scheduled")
+                                .foregroundColor(.secondary)
+                                .italic()
+                        } else {
+                            LazyVStack(alignment: .leading, spacing: 4) {
+                                ForEach(treat.lessonDates.sorted(), id: \.self) { date in
+                                    HStack {
+                                        Text(date, format: .dateTime.day().month().year())
+                                            .font(.body)
+                                        Spacer()
+                                        Button("Remove") {
+                                            removeLessonDate(date)
+                                        }
+                                        .buttonStyle(.bordered)
+                                        .controlSize(.small)
+                                        .foregroundColor(.red)
+                                    }
+                                    .padding(.vertical, 2)
+                                }
+                            }
                         }
                     }
                     .padding(.bottom)
@@ -170,7 +239,52 @@ struct TreatInfoView: View {
             .sheet(isPresented: $showingEditTreat) {
                 AddTreatView(treat: treat)
             }
+            .sheet(isPresented: $showingAddLessonDate) {
+                NavigationView {
+                    VStack(spacing: 20) {
+                        Text("Add Lesson Date")
+                            .font(.headline)
+                        
+                        DatePicker("Lesson Date", selection: $newLessonDate, displayedComponents: .date)
+                            .datePickerStyle(.graphical)
+                        
+                        HStack {
+                            Button("Cancel") {
+                                showingAddLessonDate = false
+                            }
+                            .buttonStyle(.bordered)
+                            
+                            Spacer()
+                            
+                            Button("Add") {
+                                addLessonDate()
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                    }
+                    .padding()
+                    .navigationTitle("Add Lesson Date")
+                    .navigationBarTitleDisplayMode(.inline)
+                }
+            }
         }
+    }
+    
+    private func addLessonDate() {
+        // Strip time from date to store only the date
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: newLessonDate)
+        if let dateOnly = calendar.date(from: components) {
+            treat.lessonDates.append(dateOnly)
+            treat.lastUpdated = Date()
+        }
+        showingAddLessonDate = false
+        newLessonDate = Date() // Reset for next use
+    }
+    
+    private func removeLessonDate(_ date: Date) {
+        treat.lessonDates.removeAll { $0 == date }
+        treat.lastUpdated = Date()
     }
 }
 

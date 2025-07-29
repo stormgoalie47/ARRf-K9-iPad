@@ -17,9 +17,6 @@ struct DogInfoView: View {
     
     private var dogTreats: [Treat] {
         let packages = dog.packages.sorted { $0.timestamp > $1.timestamp }
-        print("🐕 DogInfoView - Dog: \(dog.name)")
-        print("   Total packages in dog.packages: \(dog.packages.count)")
-        print("   Packages: \(packages.map { "\($0.packageType) (ID: \($0.id))" })")
         return packages
     }
     

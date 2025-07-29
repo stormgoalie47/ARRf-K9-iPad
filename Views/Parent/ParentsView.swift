@@ -14,6 +14,7 @@ struct ParentsView: View {
     @State private var showingAddParent = false
     @State private var searchText = ""
     @State private var sortBy: SortOption = .firstName
+    @State private var navigationPath = NavigationPath()
     
     enum SortOption: String, CaseIterable {
         case firstName = "First Name"
@@ -52,7 +53,7 @@ struct ParentsView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $navigationPath) {
             VStack(spacing: 0) {
                 // Search and Sort Controls
                 VStack(spacing: 12) {
@@ -118,6 +119,13 @@ struct ParentsView: View {
         }
         .sheet(isPresented: $showingAddParent) {
             AddParentView()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ResetNavigation"))) { notification in
+            if let userInfo = notification.userInfo,
+               let tab = userInfo["tab"] as? Int,
+               tab == 3 { // Parents tab
+                navigationPath = NavigationPath()
+            }
         }
     }
 

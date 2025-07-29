@@ -22,13 +22,6 @@ struct ParentsInfoView: View {
     
     private var parentTreats: [Treat] {
         let treats = parent.treats.sorted { $0.timestamp > $1.timestamp }
-        print("📋 ParentsInfoView - Parent: \(parent.fullName)")
-        print("   Total treats in parent.treats: \(parent.treats.count)")
-        print("   Treats: \(treats.map { "\($0.packageType) (ID: \($0.id))" })")
-        print("   Treat details:")
-        for treat in treats {
-            print("     - \(treat.packageType) (ID: \(treat.id)): \(treat.parents.count) parents, \(treat.dogs.count) dogs")
-        }
         return treats
     }
     

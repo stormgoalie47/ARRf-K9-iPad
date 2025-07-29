@@ -15,6 +15,7 @@ struct ResourcesView: View {
     @State private var selectedCategory: String?
     @State private var selectedSubcategory: String?
     @State private var showingAddResource = false
+    @State private var navigationPath = NavigationPath()
     
     // Define categories and subcategories
     private let categories = [
@@ -62,7 +63,7 @@ struct ResourcesView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             VStack(spacing: 0) {
                 // Fixed Filter Section
                 VStack(spacing: 16) {
@@ -160,6 +161,13 @@ struct ResourcesView: View {
             }
             .sheet(isPresented: $showingAddResource) {
                 AddResourceView()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ResetNavigation"))) { notification in
+            if let userInfo = notification.userInfo,
+               let tab = userInfo["tab"] as? Int,
+               tab == 4 { // Resources tab
+                navigationPath = NavigationPath()
             }
         }
     }

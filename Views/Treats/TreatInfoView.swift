@@ -51,17 +51,6 @@ struct TreatInfoView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Debug output
-                let _ = print("🔍 TreatInfoView - Treat: \(treat.packageType) (ID: \(treat.id))")
-                let _ = print("   Forward parents count: \(treat.parents.count)")
-                let _ = print("   Forward parents: \(treat.parents.map { $0.fullName })")
-                let _ = print("   Forward dogs count: \(treat.dogs.count)")
-                let _ = print("   Forward dogs: \(treat.dogs.map { $0.name })")
-                let _ = print("   Display parents count: \(displayParents.count)")
-                let _ = print("   Display parents: \(displayParents.map { $0.fullName })")
-                let _ = print("   Display dogs count: \(displayDogs.count)")
-                let _ = print("   Display dogs: \(displayDogs.map { $0.name })")
-                
                 // Package Header
                 VStack(alignment: .leading, spacing: 8) {
                     Text(treat.packageType)

@@ -13,6 +13,7 @@ struct PottyBreaksView: View {
     @Query private var allTreats: [Treat]
     
     @State private var selectedDate = Date()
+    @State private var navigationPath = NavigationPath()
     
     private var allLessonDates: [Date] {
         let allDates = allTreats.flatMap { $0.lessonDates }
@@ -50,7 +51,7 @@ struct PottyBreaksView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             HStack(spacing: 0) {
                 // Left Section - Calendar and Events
                 VStack(spacing: 0) {
@@ -126,6 +127,13 @@ struct PottyBreaksView: View {
                         selectedDate = Date()
                     }
                 }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ResetNavigation"))) { notification in
+            if let userInfo = notification.userInfo,
+               let tab = userInfo["tab"] as? Int,
+               tab == 2 { // PottyBreaks tab
+                navigationPath = NavigationPath()
             }
         }
     }

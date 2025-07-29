@@ -12,7 +12,6 @@ struct TreatRowView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allParents: [Parent]
     @Query private var allDogs: [Dog]
-    @State private var showingEditTreat = false
     
     let treat: Treat
     
@@ -39,89 +38,76 @@ struct TreatRowView: View {
         NavigationLink {
             TreatInfoView(treat: treat)
         } label: {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(treat.packageType)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                            .foregroundColor(.primary)
-                    
-                    HStack {
-                        Text("\(treat.numberLessons) lessons")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        Text("•")
-                            .foregroundColor(.secondary)
-                        
-                        Text(treat.price, format: .currency(code: "USD"))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    if let startDate = treat.purchaseDate {
-                        Text("Started: \(startDate, format: .dateTime.day().month().year())")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    if let endDate = treat.completionDate {
-                        Text("Ended: \(endDate, format: .dateTime.day().month().year())")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+            HStack(spacing: 16) {
+                // Package Type Icon
+                Image(systemName: packageTypeIcon)
+                    .font(.title2)
+                    .foregroundColor(.blue)
+                    .frame(width: 30)
+                
+                // Dog Name
+                if !displayDogs.isEmpty {
+                    Text(displayDogs.map { $0.name }.joined(separator: ", "))
+                        .font(.title)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    Text("No Dogs")
+                        .font(.title)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 2) {
-                    if treat.completed {
-                        Text("Completed")
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(4)
-                    } else {
-                        Text("Active")
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(4)
-                    }
-                    
-                    Button("Edit") {
-                        showingEditTreat = true
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+                // Parent Name
+                if !displayParents.isEmpty {
+                    Text(displayParents.map { $0.fullName }.joined(separator: ", "))
+                        .font(.title)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    Text("No Parents")
+                        .font(.title)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                
+                // Lessons Remaining
+                Text("\(remainingLessons)/\(treat.numberLessons)")
+                    .font(.title)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Status Badge
+                Text(treat.completed ? "Completed" : "Active")
+                    .font(.title)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(treat.completed ? Color.green : Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(4)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            
-            if let notes = treat.notes, !notes.isEmpty {
-                Text(notes)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 2)
-            }
-            
-            if !displayDogs.isEmpty {
-                Text("Dogs: \(displayDogs.map { $0.name }.joined(separator: ", "))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 2)
-            }
-        }
-        .padding(.vertical, 4)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
         }
         .buttonStyle(PlainButtonStyle())
-        .sheet(isPresented: $showingEditTreat) {
-            AddTreatView(treat: treat)
+    }
+    
+    // Helper computed property for package type icon
+    private var packageTypeIcon: String {
+        switch treat.packageType {
+        case "Boarding":
+            return "house.fill"
+        case "B&T":
+            return "person.2.fill"
+        case "Day Camp":
+            return "sun.max.fill"
+        case "House Call":
+            return "car.fill"
+        default:
+            return "shippingbox.fill"
         }
+    }
+    
+    // Helper computed property for remaining lessons
+    private var remainingLessons: Int {
+        let completedLessons = treat.lessonDates.filter { $0 <= Date() }.count
+        return max(0, treat.numberLessons - completedLessons)
     }
 }
 

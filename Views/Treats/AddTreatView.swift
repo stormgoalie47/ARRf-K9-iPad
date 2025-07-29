@@ -57,13 +57,11 @@ struct AddTreatView: View {
             if initialParents.isEmpty {
                 let reverseParents = allParents.filter { $0.treats.contains(treat) }
                 initialParents = Set(reverseParents)
-                print("🔧 Using reverse relationships for parents: \(reverseParents.map { $0.fullName })")
             }
             
             if initialDogs.isEmpty {
                 let reverseDogs = allDogs.filter { $0.packages.contains(treat) }
                 initialDogs = Set(reverseDogs)
-                print("🔧 Using reverse relationships for dogs: \(reverseDogs.map { $0.name })")
             }
             
             _selectedParents = State(initialValue: initialParents)
@@ -262,21 +260,6 @@ struct AddTreatView: View {
     }
     
     private func saveTreat() {
-        // Debug output
-        print("💾 Starting saveTreat()")
-        print("   Selected parents: \(selectedParents.map { $0.fullName })")
-        print("   Selected dogs: \(selectedDogs.map { $0.name })")
-        
-        // Check existing treats before saving
-        if let parent = selectedParents.first {
-            print("   📊 Existing treats for \(parent.fullName) before save:")
-            for treat in parent.treats {
-                print("     - \(treat.packageType) (ID: \(treat.id)): \(treat.parents.count) parents, \(treat.dogs.count) dogs")
-                print("       Parents: \(treat.parents.map { $0.fullName })")
-                print("       Dogs: \(treat.dogs.map { $0.name })")
-            }
-        }
-        
         if isEditing, let treat = treatToEdit {
             // Update existing treat
             treat.packageType = packageType.trimmingCharacters(in: .whitespaces)
@@ -289,19 +272,15 @@ struct AddTreatView: View {
             treat.dogs = Array(selectedDogs)
             treat.lastUpdated = Date()
             
-            print("   🔄 Updated existing treat: \(treat.packageType) (ID: \(treat.id))")
-            
             // Update reverse relationships
             for parent in selectedParents {
                 if !parent.treats.contains(treat) {
                     parent.treats.append(treat)
-                    print("   🔗 Added treat to parent: \(parent.fullName)")
                 }
             }
             for dog in selectedDogs {
                 if !dog.packages.contains(treat) {
                     dog.packages.append(treat)
-                    print("   🔗 Added treat to dog: \(dog.name)")
                 }
             }
         } else {
@@ -318,7 +297,6 @@ struct AddTreatView: View {
             )
             
             modelContext.insert(newTreat)
-            print("   🆕 Created new treat: \(newTreat.packageType) (ID: \(newTreat.id))")
             
             // Explicitly set both sides of the relationship
             newTreat.parents = Array(selectedParents)
@@ -327,70 +305,32 @@ struct AddTreatView: View {
             // Update reverse relationships
             for parent in selectedParents {
                 parent.treats.append(newTreat)
-                print("   🔗 Added treat to parent: \(parent.fullName)")
             }
             for dog in selectedDogs {
                 dog.packages.append(newTreat)
-                print("   🔗 Added treat to dog: \(dog.name)")
             }
         }
         
         // Explicitly save the context
         do {
             try modelContext.save()
-            print("   💾 Context saved successfully")
-            
-            // Refresh existing treats to ensure their relationships are maintained
-            if let parent = selectedParents.first {
-                print("   🔄 Refreshing existing treats...")
-                for treat in parent.treats {
-                    // Re-establish the forward relationships for existing treats
-                    if treat.parents.isEmpty && !parent.treats.isEmpty {
-                        treat.parents = [parent]
-                        print("   🔧 Fixed parent relationship for \(treat.packageType)")
-                    }
-                    if treat.dogs.isEmpty && !parent.dogs.isEmpty {
-                        treat.dogs = parent.dogs
-                        print("   🔧 Fixed dog relationships for \(treat.packageType)")
-                    }
-                }
-                
-                // Save again after fixing relationships
-                try modelContext.save()
-                print("   💾 Context saved again after fixing relationships")
-            }
-            
-            // Check existing treats after saving
-            if let parent = selectedParents.first {
-                print("   📊 Existing treats for \(parent.fullName) after save:")
-                for treat in parent.treats {
-                    print("     - \(treat.packageType) (ID: \(treat.id)): \(treat.parents.count) parents, \(treat.dogs.count) dogs")
-                    print("       Parents: \(treat.parents.map { $0.fullName })")
-                    print("       Dogs: \(treat.dogs.map { $0.name })")
-                }
-            }
         } catch {
             print("   ❌ Error saving context: \(error)")
         }
         
-        print("   ✅ saveTreat() completed")
         dismiss()
     }
     
     private func deleteTreat() {
         if let treat = treatToEdit {
-            print("🗑️ Deleting treat: \(treat.packageType) (ID: \(treat.id))")
-            
             // Remove from all parent's treats arrays
             for parent in treat.parents {
                 parent.treats.removeAll { $0.id == treat.id }
-                print("   🗑️ Removed from parent: \(parent.fullName)")
             }
             
             // Remove from all dog's packages arrays
             for dog in treat.dogs {
                 dog.packages.removeAll { $0.id == treat.id }
-                print("   🗑️ Removed from dog: \(dog.name)")
             }
             
             // Delete the treat
@@ -399,7 +339,6 @@ struct AddTreatView: View {
             // Save the context
             do {
                 try modelContext.save()
-                print("   💾 Context saved after deletion")
             } catch {
                 print("   ❌ Error saving context after deletion: \(error)")
             }

@@ -10,7 +10,7 @@ import SwiftData
 
 struct MainTabView: View {
     @State private var selectedTab = 0
-    @State private var previousTab = 0
+    @State private var tabTapCounts: [Int: Int] = [0: 0, 1: 0, 2: 0, 3: 0, 4: 0]
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -49,23 +49,20 @@ struct MainTabView: View {
                 }
                 .tag(4)
         }
-        
         .onChange(of: selectedTab) { oldValue, newValue in
-            // If tapping the same tab, reset navigation
-            if newValue == previousTab {
-                resetNavigation(for: newValue)
+            // Increment tap count for the selected tab
+            tabTapCounts[newValue, default: 0] += 1
+            
+            // If tapping the same tab, trigger reset
+            if newValue == oldValue {
+                // Post notification with tab index and tap count
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ResetNavigation"),
+                    object: nil,
+                    userInfo: ["tab": newValue, "tapCount": tabTapCounts[newValue] ?? 0]
+                )
             }
-            previousTab = newValue
         }
-    }
-    
-    private func resetNavigation(for tab: Int) {
-        // Post notification to reset navigation for the specific tab
-        NotificationCenter.default.post(
-            name: NSNotification.Name("ResetNavigation"),
-            object: nil,
-            userInfo: ["tab": tab]
-        )
     }
 }
 

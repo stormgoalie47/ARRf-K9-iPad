@@ -10,13 +10,20 @@ import SwiftData
 
 struct PawView: View {
     @Environment(\.modelContext) private var modelContext
-        @Query private var parents: [Parent]
+    @Query private var parents: [Parent]
+    @State private var navigationPath = NavigationPath()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             logoSection
         }
-            
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ResetNavigation"))) { notification in
+            if let userInfo = notification.userInfo,
+               let tab = userInfo["tab"] as? Int,
+               tab == 0 { // PawView tab
+                navigationPath = NavigationPath()
+            }
+        }
     }
     
     private var logoSection: some View {

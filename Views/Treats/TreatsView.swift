@@ -14,20 +14,31 @@ struct TreatsView: View {
     
     @State private var selectedPackageType: String = "All"
     @State private var selectedStatus: String = "All"
+    @State private var navigationPath = NavigationPath()
     
     private let packageTypes = ["All", "Boarding", "B&T", "Day Camp", "House Call"]
     private let statusOptions = ["All", "Active", "Completed"]
     
+    // Helper function to get icon for package type
+    private func getPackageTypeIcon(for type: String) -> String {
+        switch type {
+        case "All":
+            return "square.grid.2x2.fill"
+        case "Boarding":
+            return "house.fill"
+        case "B&T":
+            return "person.2.fill"
+        case "Day Camp":
+            return "sun.max.fill"
+        case "House Call":
+            return "car.fill"
+        default:
+            return "shippingbox.fill"
+        }
+    }
+    
     private var filteredTreats: [Treat] {
         var filtered = treats
-        
-        // Debug output
-        print("🔍 TreatsView - Total treats: \(treats.count)")
-        for treat in treats {
-            print("   - \(treat.packageType) (ID: \(treat.id)): \(treat.parents.count) parents, \(treat.dogs.count) dogs")
-            print("     Parents: \(treat.parents.map { $0.fullName })")
-            print("     Dogs: \(treat.dogs.map { $0.name })")
-        }
         
         // Filter by package type
         if selectedPackageType != "All" {
@@ -44,7 +55,7 @@ struct TreatsView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ScrollView {
                 VStack(spacing: 20) {
                     // Filter Cards - Same Line
@@ -53,7 +64,8 @@ struct TreatsView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 12) {
                                 ForEach(packageTypes, id: \.self) { type in
-                                    StatCard(
+                                    IconStatCard(
+                                        iconName: getPackageTypeIcon(for: type),
                                         title: type,
                                         isSelected: selectedPackageType == type,
                                         action: { selectedPackageType = type }
@@ -96,6 +108,13 @@ struct TreatsView: View {
                     }
                     .padding(.horizontal)
                 }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ResetNavigation"))) { notification in
+            if let userInfo = notification.userInfo,
+               let tab = userInfo["tab"] as? Int,
+               tab == 1 { // Treats tab
+                navigationPath = NavigationPath()
             }
         }
     }
